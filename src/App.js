@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import Lenis from '@studio-freight/lenis';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { Phone, MapPin, Facebook, Instagram, Clock, ChefHat, Quote } from 'lucide-react';
+import { Phone, MapPin, Facebook, Instagram, Clock, ChefHat, Quote, Menu, X } from 'lucide-react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import MenuPage from './pages/MenuPage';
 
@@ -75,8 +75,9 @@ const Home = () => {
 };
 
 // ... Navigation, Hero, About, Signature, MenuPreview components remain unchanged ...
-
+// ... Testimonials component ...
 const Testimonials = () => {
+  // ... (Testimonials implementation) ...
   const reviews = [
     {
       name: "Sarah M.",
@@ -157,6 +158,7 @@ const Testimonials = () => {
 
 const Navigation = ({ scrollToSection }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -167,6 +169,7 @@ const Navigation = ({ scrollToSection }) => {
   }, []);
 
   const handleNavClick = (sectionId) => {
+    setIsMobileMenuOpen(false);
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
@@ -186,20 +189,50 @@ const Navigation = ({ scrollToSection }) => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
-      className="fixed top-0 w-full z-50 transition-all duration-300 border-b border-white/5 bg-background/80 backdrop-blur-xl"
+      className={`fixed top-0 w-full z-50 transition-all duration-300 border-b border-white/5 ${isScrolled || isMobileMenuOpen ? 'bg-background/95 backdrop-blur-xl' : 'bg-transparent'
+        }`}
       data-testid="navigation"
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
         <div className="text-2xl font-heading font-bold tracking-tight" data-testid="brand-logo">
           <span className="text-primary">JAC</span> <span className="text-foreground">Dining</span>
         </div>
+
+        {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
           <button onClick={() => handleNavClick('about')} className="text-sm uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-200" data-testid="nav-about">About</button>
           <button onClick={() => navigate('/menu')} className="text-sm uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-200" data-testid="nav-menu">Menu</button>
           <button onClick={() => handleNavClick('contact')} className="text-sm uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-200" data-testid="nav-contact">Contact</button>
           <a href="https://wa.me/94777265597" target="_blank" rel="noopener noreferrer" className="bg-primary text-white hover:bg-[#c94e1b] transition-all duration-300 rounded-full px-6 py-2 text-sm uppercase tracking-widest font-bold shadow-[0_0_20px_rgba(227,93,37,0.3)] hover:shadow-[0_0_30px_rgba(227,93,37,0.5)]" data-testid="nav-reserve-btn">Reserve</a>
         </div>
+
+        {/* Mobile Menu Toggle */}
+        <div className="md:hidden flex items-center">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-white focus:outline-none"
+          >
+            {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="md:hidden bg-background border-t border-white/10"
+        >
+          <div className="flex flex-col p-6 space-y-6">
+            <button onClick={() => handleNavClick('about')} className="text-left text-lg uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-200">About</button>
+            <button onClick={() => { setIsMobileMenuOpen(false); navigate('/menu'); }} className="text-left text-lg uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-200">Menu</button>
+            <button onClick={() => handleNavClick('contact')} className="text-left text-lg uppercase tracking-widest text-neutral-400 hover:text-white transition-colors duration-200">Contact</button>
+            <a href="https://wa.me/94777265597" target="_blank" rel="noopener noreferrer" className="bg-primary text-white hover:bg-[#c94e1b] transition-all duration-300 rounded-full px-6 py-3 text-center text-sm uppercase tracking-widest font-bold shadow-[0_0_20px_rgba(227,93,37,0.3)]">Reserve Now</a>
+          </div>
+        </motion.div>
+      )}
     </motion.nav>
   );
 };
